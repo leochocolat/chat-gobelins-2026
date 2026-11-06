@@ -1,0 +1,13 @@
+@use 'sass:map';
+@use 'sass:meta';
+
+@use './variables' as *;
+
+@each $name, $value in $breakpoints {
+    @media #{meta.inspect(map.get($breakpoints, $name))} {
+        html:before {
+            display: none;
+            content: $name;
+        }
+    }
+}

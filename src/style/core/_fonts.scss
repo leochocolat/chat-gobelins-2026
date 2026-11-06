@@ -1,0 +1,22 @@
+@mixin font-face($font-family, $weight, $style, $url) {
+    @font-face {
+        font-family: '#{$font-family}';
+        src:
+            url('/#{$url}.woff2') format('woff2'),
+            url('/#{$url}.woff') format('woff');
+        font-style: $style;
+        font-display: swap;
+
+        font-weight: $weight;
+        -webkit-font-smoothing: antialiased;
+        -khtml-font-smoothing: antialiased;
+        -apple-font-smoothing: antialiased;
+        font-smooth: always;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+// Declare project webfonts here (place .woff2/.woff files in public/fonts/)
+// and update $font-primary / $font-secondary in resources/_variables.scss.
+// @include font-face('My Font', 400, 'normal', 'fonts/my-font-regular');
+// @include font-face('My Font', 500, 'normal', 'fonts/my-font-medium');

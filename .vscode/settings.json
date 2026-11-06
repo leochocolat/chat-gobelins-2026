@@ -1,0 +1,10 @@
+{
+    "scss.validate": false,
+    "emmet.includeLanguages": {
+        "vue-html": "html",
+        "vue": "html",
+        "javascript": "html"
+    },
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
