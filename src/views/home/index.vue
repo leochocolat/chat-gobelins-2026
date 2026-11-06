@@ -1,6 +1,6 @@
 <template>
     <div class="page home">
-        <Window name="All channels">
+        <Window name="// All channels">
             <Channels :channels="channels" />
         </Window>
 

@@ -5,6 +5,7 @@
                 <ButtonChannel :channel="item" />
             </li>
         </ul>
+        <button class="button-new-channel" @click="clickHandler">+ Create new channel</button>
     </div>
 </template>
 
@@ -25,6 +26,11 @@ const props = defineProps({
         required: true,
     },
 });
+
+/**
+ * Events
+ */
+const clickHandler = () => {};
 </script>
 
 <style src="./style.scss" lang="scss" scoped></style>

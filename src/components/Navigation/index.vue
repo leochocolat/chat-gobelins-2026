@@ -1,6 +1,6 @@
 <template>
     <nav class="navigation">
-        <div class="status">Logged in as @{{ user ? user.user.username : 'JohnDoe' }}</div>
+        <div class="status">// Logged in as @{{ user ? user.user.username : 'JohnDoe' }}</div>
         <router-link class="button-logout" v-if="isLoggedIn" to="/logout">Logout</router-link>
     </nav>
 </template>

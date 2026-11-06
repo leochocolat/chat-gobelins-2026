@@ -1,25 +1,9 @@
 @use '@/style/imports' as *;
 
-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-title {
-    margin-bottom: 30px;
-}
-
 input {
     &:focus {
         outline: none;
     }
-}
-
-.button-submit {
-    margin-top: 30px;
 }
 
 .input-row {

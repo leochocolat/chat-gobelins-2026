@@ -11,7 +11,7 @@
             v-model="currentMessage"
             name="message"
             id="message"
-            :placeholder="`Aa`"
+            :placeholder="`Blablabla...`"
         ></textarea>
     </div>
 </template>

@@ -5,5 +5,12 @@
 
     padding: 5px;
 
-    border: solid 1px black;
+    // border: solid 1px black;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+
+    &:hover {
+        background-color: black;
+        color: white;
+    }
 }

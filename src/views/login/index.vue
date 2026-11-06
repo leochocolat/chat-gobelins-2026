@@ -1,36 +1,36 @@
 <template>
     <div class="page login">
-        <form @submit="submitHandler">
-            <h1 class="form-title">Login</h1>
+        <Window name="// Login" :closable="false">
+            <form @submit="submitHandler">
+                <div class="input-row">
+                    <label for="username">Username:</label>
+                    <input
+                        autocomplete="username"
+                        required
+                        type="text"
+                        name="username"
+                        v-model="username"
+                        placeholder="Username"
+                        :disabled="loading"
+                    />
+                </div>
 
-            <div class="input-row">
-                <label for="username">Username:</label>
-                <input
-                    autocomplete="username"
-                    required
-                    type="text"
-                    name="username"
-                    v-model="username"
-                    placeholder="Username"
-                    :disabled="loading"
-                />
-            </div>
+                <div class="input-row">
+                    <label for="password">Password:</label>
+                    <input
+                        autocomplete="password"
+                        placeholder="Password"
+                        required
+                        name="password"
+                        v-model="password"
+                        type="password"
+                        :disabled="loading"
+                    />
+                </div>
 
-            <div class="input-row">
-                <label for="password">Password:</label>
-                <input
-                    autocomplete="password"
-                    placeholder="Password"
-                    required
-                    name="password"
-                    v-model="password"
-                    type="password"
-                    :disabled="loading"
-                />
-            </div>
-
-            <input :disabled="loading" class="button-submit" type="submit" value="Submit" />
-        </form>
+                <input :disabled="loading" class="button-submit" type="submit" value="Submit" />
+            </form>
+        </Window>
     </div>
 </template>
 
@@ -40,6 +40,9 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, on
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import authentification from '@/authentification';
+
+// Components
+import Window from 'components/Window/index.vue';
 
 /**
  * Global

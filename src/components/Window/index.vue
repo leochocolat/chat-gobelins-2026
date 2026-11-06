@@ -1,5 +1,5 @@
 <template>
-    <div ref="windowRef" class="window">
+    <div ref="windowRef" class="window" :style="{ zIndex }" @pointerdown.capture="windowsStore.bringToFront(id)">
         <div ref="navRef" class="nav" :class="{ 'is-dragging': isDragging }">
             <div class="name">
                 {{ name }}
@@ -13,8 +13,11 @@
 
 <script setup>
 // Vue
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, onUpdated, ref, useId, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+
+// Stores
+import { useWindowsStore } from 'stores/windows';
 
 // Vendor
 import { gsap } from 'gsap';
@@ -22,6 +25,11 @@ import { gsap } from 'gsap';
 // Utils
 import randomFromRange from 'utils/randomFromRange';
 import DragManager from 'utils/DragManager';
+
+/**
+ * Stores
+ */
+const windowsStore = useWindowsStore();
 
 /**
  * Props
@@ -44,6 +52,11 @@ const props = defineProps({
 const isDragging = ref(false);
 
 /**
+ * Computed
+ */
+const zIndex = computed(() => windowsStore.zIndex(id));
+
+/**
  * Refs DOM
  */
 const windowRef = ref(null);
@@ -52,6 +65,8 @@ const navRef = ref(null);
 /**
  * Setup
  */
+const id = useId();
+
 const position = {
     x: 0,
     y: 0,
@@ -66,6 +81,8 @@ let dragManager = null;
  * Lifecycle
  */
 onMounted(() => {
+    windowsStore.register(id);
+
     dragManager = new DragManager({
         el: navRef.value,
     });
@@ -74,6 +91,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    windowsStore.unregister(id);
     removeEventListeners();
 });
 
