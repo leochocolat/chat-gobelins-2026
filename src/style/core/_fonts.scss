@@ -20,3 +20,7 @@
 // and update $font-primary / $font-secondary in resources/_variables.scss.
 // @include font-face('My Font', 400, 'normal', 'fonts/my-font-regular');
 // @include font-face('My Font', 500, 'normal', 'fonts/my-font-medium');
+
+@include font-face('JetBrains Mono', 400, normal, 'fonts/jetbrains-mono-regular');
+@include font-face('JetBrains Mono', 500, normal, 'fonts/jetbrains-mono-medium');
+@include font-face('JetBrains Mono', 700, normal, 'fonts/jetbrains-mono-bold');

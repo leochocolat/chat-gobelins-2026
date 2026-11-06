@@ -53,6 +53,14 @@ select {
     background: none;
 }
 
+input,
+textarea,
+select {
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
+}
+
 button {
     cursor: pointer;
 }
