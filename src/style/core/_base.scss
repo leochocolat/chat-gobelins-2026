@@ -8,6 +8,10 @@ body {
     height: 100%;
 
     font-family: $font-primary;
+
+    * {
+        text-transform: uppercase;
+    }
 }
 
 #app {

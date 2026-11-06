@@ -1,10 +1,12 @@
 <template>
     <div class="page home">
-        <h1>Home</h1>
+        <Window name="All channels">
+            <Channels :channels="channels" />
+        </Window>
 
-        <ListChannels :channels="channels" />
-
-        <Channel v-if="channels[0]" :name="channels[0].name" :id="channels[0].id" />
+        <Window v-if="channels[0]" :name="`#${channels[0].name}`">
+            <Channel :name="channels[0].name" :id="channels[0].id" />
+        </Window>
     </div>
 </template>
 
@@ -14,7 +16,8 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, on
 import { storeToRefs } from 'pinia';
 
 // Components
-import ListChannels from '@/components/ListChannels/index.vue';
+import Window from '@/components/Window/index.vue';
+import Channels from '@/components/Channels/index.vue';
 import Channel from '@/components/Channel/index.vue';
 
 // Utils

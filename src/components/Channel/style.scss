@@ -3,41 +3,8 @@
     flex-direction: column;
     gap: 20px;
 
-    position: relative;
-
-    width: 500px;
-    height: 500px;
-
-    border: solid 1px black;
-
-    padding: 20px;
-}
-
-.nav {
-    display: flex;
-    gap: 5px;
-
-    position: absolute;
-    left: 0;
-    top: 0;
-
     width: 100%;
-
-    background-color: black;
-    color: white;
-}
-
-.refresh-state {
-    opacity: 0;
-    pointer-events: none;
-
-    transition-delay: 0.5s;
-
-    &.is-active {
-        opacity: 1;
-
-        transition: opacity 0.05s linear;
-    }
+    height: 100%;
 }
 
 .name {
@@ -45,6 +12,7 @@
 
 .messages-scroll-container {
     width: 100%;
+    height: 100%;
 
     padding-top: 50px;
 

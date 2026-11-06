@@ -1,0 +1,23 @@
+.channels {
+    position: relative;
+}
+
+.nav {
+    display: flex;
+    gap: 5px;
+
+    padding: 5px;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 100%;
+
+    background-color: black;
+    color: white;
+}
+
+.list {
+    padding-top: 25px;
+}

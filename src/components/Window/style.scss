@@ -1,0 +1,45 @@
+@use '@/style/imports' as *;
+
+.window {
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    border: solid 1px black;
+
+    background-color: white;
+
+    padding: 20px;
+
+    overflow: hidden;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+}
+
+.nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    background-color: black;
+    color: white;
+
+    padding: 5px;
+
+    @include unselectable();
+
+    cursor: grab;
+
+    &.is-dragging {
+        cursor: grabbing;
+    }
+}
+
+.name {
+    pointer-events: none;
+}

@@ -1,0 +1,16 @@
+.navigation {
+    display: flex;
+
+    justify-content: space-between;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 100%;
+
+    padding: 5px;
+
+    background-color: black;
+    color: white;
+}

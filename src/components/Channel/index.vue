@@ -1,11 +1,5 @@
 <template>
     <div class="channel">
-        <div class="nav">
-            <h2 class="name">
-                {{ name }}
-            </h2>
-            <span class="refresh-state" :class="{ 'is-active': isRefreshing }"> Refreshing... </span>
-        </div>
         <div ref="scrollContainer" class="messages-scroll-container">
             <div class="messages">
                 <Message v-for="(item, index) in messages" :key="index" :message="item" />

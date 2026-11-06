@@ -1,9 +1,7 @@
 <template>
-    <ul class="list-channels">
-        <li v-for="(item, index) in channels" :key="`channel-${index}`" class="list-item-channels">
-            {{ item }}
-        </li>
-    </ul>
+    <button class="button-channel">
+        <div class="name">#{{ channel.name }}</div>
+    </button>
 </template>
 
 <script setup>
@@ -15,8 +13,8 @@ import { storeToRefs } from 'pinia';
  * Props
  */
 const props = defineProps({
-    channels: {
-        type: Array,
+    channel: {
+        type: Object,
         required: true,
     },
 });
