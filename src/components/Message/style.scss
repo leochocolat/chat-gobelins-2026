@@ -1,0 +1,26 @@
+.message {
+    display: inline-flex;
+
+    &.is-own-message {
+        justify-content: end;
+    }
+}
+
+.container {
+    max-width: 80%;
+    border: solid 1px black;
+    padding: 5px;
+
+    .message.is-own-message & {
+        border: none;
+        color: white;
+        background-color: black;
+    }
+}
+
+.infos {
+    display: flex;
+    justify-content: end;
+    text-align: right;
+    font-size: 0.7rem;
+}

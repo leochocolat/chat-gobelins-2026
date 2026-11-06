@@ -11,33 +11,15 @@
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
-// Stores
-import { useUserStore } from 'stores/user';
-
-// Utils
-import axiosClient from '@/axios.js';
-
 /**
- * Stores
+ * Props
  */
-const userStore = useUserStore();
-
-/**
- * Refs
- */
-const channels = ref([]);
-
-onMounted(() => {
-    fetchChannels();
+const props = defineProps({
+    channels: {
+        type: Array,
+        required: true,
+    },
 });
-
-/**
- * Private
- */
-const fetchChannels = async () => {
-    const { data } = await axiosClient.get('/me');
-    channels.value = data.channels;
-};
 </script>
 
 <style src="./style.scss" lang="scss" scoped></style>
