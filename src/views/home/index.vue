@@ -1,11 +1,31 @@
 <template>
     <div class="page home">
-        <Window name="// All channels">
-            <Channels :channels="channels" />
+        <Window name="// All channels" :closable="false" :width="350" :height="500">
+            <Channels
+                :channels="channels"
+                :opened-channels="openedChannels"
+                @create="createHandler"
+                @open="openHandler"
+            />
         </Window>
 
-        <Window v-if="channels[0]" :name="`#${channels[0].name}`">
-            <Channel :name="channels[0].name" :id="channels[0].id" />
+        <Window
+            v-for="channel in openedChannels"
+            :key="channel.id"
+            :name="`#${channel.name}`"
+            :window-id="`channel-${channel.id}`"
+            @close="closeHandler(channel)"
+        >
+            <Channel :name="channel.name" :id="channel.id" />
+        </Window>
+
+        <Window
+            v-if="isCreatingChannel"
+            name="// New channel"
+            :window-id="CREATE_WINDOW_ID"
+            @close="createCloseHandler"
+        >
+            <CreateChannel @created="createdHandler" @cancel="cancelHandler" />
         </Window>
     </div>
 </template>
@@ -19,14 +39,27 @@ import { storeToRefs } from 'pinia';
 import Window from '@/components/Window/index.vue';
 import Channels from '@/components/Channels/index.vue';
 import Channel from '@/components/Channel/index.vue';
+import CreateChannel from '@/components/CreateChannel/index.vue';
+
+// Stores
+import { useWindowsStore } from 'stores/windows';
 
 // Utils
 import axiosClient from '@/axios.js';
+
+const CREATE_WINDOW_ID = 'create-channel';
+
+/**
+ * Stores
+ */
+const windowsStore = useWindowsStore();
 
 /**
  * Refs
  */
 const channels = ref([]);
+const openedChannels = ref([]);
+const isCreatingChannel = ref(false);
 
 /**
  * Lifecycle
@@ -40,7 +73,46 @@ onMounted(() => {
  */
 const fetchChannels = async () => {
     const { data } = await axiosClient.get('/me');
-    channels.value = data.channels;
+    channels.value = data.channels ?? [];
+
+    if (channels.value[0]) openChannel(channels.value[0]);
+};
+
+const openChannel = (channel) => {
+    const isOpened = openedChannels.value.some((item) => item.id === channel.id);
+
+    if (isOpened) windowsStore.bringToFront(`channel-${channel.id}`);
+    else openedChannels.value.push(channel);
+};
+
+/**
+ * Events
+ */
+const openHandler = (channel) => {
+    openChannel(channel);
+};
+
+const closeHandler = (channel) => {
+    openedChannels.value = openedChannels.value.filter((item) => item.id !== channel.id);
+};
+
+const createCloseHandler = () => {
+    isCreatingChannel.value = false;
+};
+
+const cancelHandler = () => {
+    isCreatingChannel.value = false;
+};
+
+const createHandler = () => {
+    if (isCreatingChannel.value) windowsStore.bringToFront(CREATE_WINDOW_ID);
+    else isCreatingChannel.value = true;
+};
+
+const createdHandler = (channel) => {
+    channels.value.push(channel);
+    openChannel(channel);
+    isCreatingChannel.value = false;
 };
 </script>
 

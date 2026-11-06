@@ -1,6 +1,6 @@
 <template>
     <div class="channel">
-        <div ref="scrollContainer" class="messages-scroll-container">
+        <div ref="scrollContainer" class="messages-scroll-container" @scroll.passive="scrollHandler">
             <div class="messages">
                 <Message v-for="(item, index) in messages" :key="index" :message="item" />
             </div>
@@ -28,6 +28,7 @@ import Message from '@/components/Message/index.vue';
 import axiosClient from '@/axios.js';
 
 const REFRESH_DELAY = 2000;
+const BOTTOM_THRESHOLD = 2;
 
 /**
  * Props
@@ -60,6 +61,8 @@ const scrollContainer = ref(null);
  * Setup
  */
 let refreshInterval;
+let isAutoScrollEnabled = true;
+let previousScrollTop = 0;
 
 /**
  * Lifecycle
@@ -91,6 +94,8 @@ const fetchMessages = async (isFirstFetch) => {
 };
 
 const updateScroll = (behavior) => {
+    if (!scrollContainer.value || !isAutoScrollEnabled) return;
+
     scrollContainer.value.scrollTo({ top: scrollContainer.value.scrollHeight, behavior });
 };
 
@@ -102,6 +107,7 @@ const submitMessage = async () => {
     });
     if (data) {
         currentMessage.value = '';
+        isAutoScrollEnabled = true;
         fetchMessages();
     }
     isSubmitting.value = false;
@@ -110,6 +116,16 @@ const submitMessage = async () => {
 /**
  * Events
  */
+const scrollHandler = () => {
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value;
+
+    // Only an upward scroll disables it, the smooth autoscroll itself always goes down
+    if (scrollTop < previousScrollTop) isAutoScrollEnabled = false;
+    if (scrollHeight - scrollTop - clientHeight <= BOTTOM_THRESHOLD) isAutoScrollEnabled = true;
+
+    previousScrollTop = scrollTop;
+};
+
 const keydownHandler = (e) => {
     if (e.key !== 'Enter' || e.shiftKey) return;
     e.preventDefault();

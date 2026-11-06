@@ -1,5 +1,5 @@
 <template>
-    <button class="button-channel">
+    <button class="button-channel" :class="{ 'is-opened': opened }">
         <div class="name">#{{ channel.name }}</div>
     </button>
 </template>
@@ -16,6 +16,11 @@ const props = defineProps({
     channel: {
         type: Object,
         required: true,
+    },
+    opened: {
+        type: Boolean,
+        required: false,
+        default: false,
     },
 });
 </script>

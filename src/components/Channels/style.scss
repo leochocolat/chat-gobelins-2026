@@ -1,5 +1,4 @@
 .channels {
-    position: relative;
 }
 
 .nav {
@@ -19,7 +18,10 @@
 }
 
 .list {
+    display: flex;
+    flex-direction: column;
     padding-top: 25px;
+    gap: 5px;
 }
 
 .button-new-channel {

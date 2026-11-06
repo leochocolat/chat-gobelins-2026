@@ -47,7 +47,9 @@ const { user } = storeToRefs(userStore);
  */
 const creationDateString = computed(() => {
     const date = new Date(props.message.creation_date);
-    return date.toLocaleDateString();
+    const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    return `${date.toLocaleDateString()} ${time}`;
 });
 </script>
 

@@ -2,7 +2,11 @@
     <div class="channels">
         <ul class="list">
             <li v-for="(item, index) in channels" :key="`channel-${index}`" class="list-item">
-                <ButtonChannel :channel="item" />
+                <ButtonChannel
+                    :channel="item"
+                    :opened="openedChannels.some((channel) => channel.id === item.id)"
+                    @click="channelClickHandler(item)"
+                />
             </li>
         </ul>
         <button class="button-new-channel" @click="clickHandler">+ Create new channel</button>
@@ -18,6 +22,11 @@ import { storeToRefs } from 'pinia';
 import ButtonChannel from '@/components/ButtonChannel/index.vue';
 
 /**
+ * Emits
+ */
+const emit = defineEmits(['create', 'open']);
+
+/**
  * Props
  */
 const props = defineProps({
@@ -25,12 +34,23 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    openedChannels: {
+        type: Array,
+        required: false,
+        default: () => [],
+    },
 });
 
 /**
  * Events
  */
-const clickHandler = () => {};
+const clickHandler = () => {
+    emit('create');
+};
+
+const channelClickHandler = (channel) => {
+    emit('open', channel);
+};
 </script>
 
 <style src="./style.scss" lang="scss" scoped></style>
