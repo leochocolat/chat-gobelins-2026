@@ -1,6 +1,7 @@
 <template>
     <Transition appear :css="false" @enter="enterHandler" @leave="leaveHandler" @after-leave="afterLeaveHandler">
         <div v-if="isVisible" ref="windowRef" class="window" :style="style" @pointerdown.capture="pointerdownHandler">
+            <canvas ref="backgroundRef" class="background" aria-hidden="true"></canvas>
             <div ref="navRef" class="nav" :class="{ 'is-dragging': isDragging }">
                 <div class="name">
                     {{ name }}
@@ -53,6 +54,9 @@ import DragManager from 'utils/DragManager';
 
 // Animations
 import { enter, leave } from './animations';
+
+// WebGL
+import windowBackgrounds from 'webgl/windowBackgrounds';
 
 const VIEWPORT_MARGIN = 100;
 const VIEWPORT_PADDING = 5;
@@ -120,6 +124,7 @@ const style = computed(() => ({
  */
 const windowRef = ref(null);
 const navRef = ref(null);
+const backgroundRef = ref(null);
 
 /**
  * Setup
@@ -148,6 +153,12 @@ onMounted(() => {
     });
     initPosition();
     setupEventListeners();
+    windowBackgrounds.add(backgroundRef.value);
+});
+
+// The template ref is already cleared in onUnmounted
+onBeforeUnmount(() => {
+    windowBackgrounds.remove(backgroundRef.value);
 });
 
 onUnmounted(() => {

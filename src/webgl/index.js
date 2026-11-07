@@ -12,6 +12,7 @@ import Atlas from 'webgl/Atlas';
 import MouseTrail from 'webgl/MouseTrail';
 import HotProgram from 'webgl/HotProgram';
 import settings from 'webgl/settings';
+import windowBackgrounds from 'webgl/windowBackgrounds';
 
 // Shaders
 import objectVertex from 'webgl/shaders/object/vertex.glsl?raw';
@@ -89,7 +90,12 @@ export default class WebGL {
         this._timelineHide?.kill();
 
         this._timelineShow = gsap.timeline({ onComplete: cb });
-        this._timelineShow.fromTo(this._plane.program.uniforms.uTransition, { value: 0 }, { value: 1, duration: 5, ease: 'power3.out' }, 0);
+        this._timelineShow.fromTo(
+            this._plane.program.uniforms.uTransition,
+            { value: 0 },
+            { value: 1, duration: 5, ease: 'power3.out' },
+            0,
+        );
         this._timelineShow.to(this._rotationTransition, { value: 1, duration: 5, ease: 'power3.out' }, 0);
         this._timelineShow.to(this._rotationAmplitudeTransition, { value: 1, duration: 3, ease: 'sine.out' }, 2);
     }
@@ -99,7 +105,11 @@ export default class WebGL {
         this._timelineHide?.kill();
 
         this._timelineHide = gsap.timeline({ onComplete: cb });
-        this._timelineHide.fromTo(this._plane.program.uniforms.uTransition, { value: 1 }, { value: 0, duration: 1, ease: 'power3.out' });
+        this._timelineHide.fromTo(
+            this._plane.program.uniforms.uTransition,
+            { value: 1 },
+            { value: 0, duration: 1, ease: 'power3.out' },
+        );
     }
 
     destroy() {
@@ -217,14 +227,16 @@ export default class WebGL {
         if (!this._isDark) return settings.atlas;
 
         const color = new Color(settings.atlas.textColor);
-        const textColor = `rgb(${ (1 - color.r) * 255 }, ${ (1 - color.g) * 255 }, ${ (1 - color.b) * 255 })`;
+        const textColor = `rgb(${(1 - color.r) * 255}, ${(1 - color.g) * 255}, ${(1 - color.b) * 255})`;
 
         return { ...settings.atlas, textColor };
     }
 
     // Matches the page background, defined by the theme in style/core/_themes.scss
     _updateBackgroundColor() {
-        const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim();
+        const backgroundColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-background')
+            .trim();
         this._backgroundColor.set(backgroundColor);
     }
 
@@ -274,7 +286,8 @@ export default class WebGL {
         this._plane.program.uniforms.uScreenResolution.value[1] = height;
 
         // Responsive adjustments
-        this._plane.program.uniforms.uAsciiOpacity.value = settings.asciiOpacity * RESPONSIVE[this._breakpoint].opacityFactor;
+        this._plane.program.uniforms.uAsciiOpacity.value =
+            settings.asciiOpacity * RESPONSIVE[this._breakpoint].opacityFactor;
     }
 
     _update(time, deltaTime) {
@@ -289,22 +302,38 @@ export default class WebGL {
         this._rtObject.scale.set(scale, scale, scale);
 
         // Rotation
-        const mouseRotationX = math.map(this._mousePosition.current.x, -1, 1, -Math.PI / 2, Math.PI / 2) * settings.mouseAmplitude * this._rotationAmplitudeTransition.value;
-        const mouseRotationY = math.map(this._mousePosition.current.y, -1, 1, -Math.PI / 2, Math.PI / 2) * settings.mouseAmplitude * this._rotationAmplitudeTransition.value;
+        const mouseRotationX =
+            math.map(this._mousePosition.current.x, -1, 1, -Math.PI / 2, Math.PI / 2) *
+            settings.mouseAmplitude *
+            this._rotationAmplitudeTransition.value;
+        const mouseRotationY =
+            math.map(this._mousePosition.current.y, -1, 1, -Math.PI / 2, Math.PI / 2) *
+            settings.mouseAmplitude *
+            this._rotationAmplitudeTransition.value;
 
-        const timeRotationX = Math.cos(time * settings.rotationSpeed) * settings.timeAmplitude * this._rotationAmplitudeTransition.value;
-        const timeRotationY = Math.sin(time * settings.rotationSpeed) * settings.timeAmplitude * this._rotationAmplitudeTransition.value;
+        const timeRotationX =
+            Math.cos(time * settings.rotationSpeed) * settings.timeAmplitude * this._rotationAmplitudeTransition.value;
+        const timeRotationY =
+            Math.sin(time * settings.rotationSpeed) * settings.timeAmplitude * this._rotationAmplitudeTransition.value;
 
-        const transitionRotationX = -Math.PI / 2 * (1.0 - this._rotationTransition.value);
-        const transitionRotationY = Math.PI / 2 * (1.0 - this._rotationTransition.value);
+        const transitionRotationX = (-Math.PI / 2) * (1.0 - this._rotationTransition.value);
+        const transitionRotationY = (Math.PI / 2) * (1.0 - this._rotationTransition.value);
 
         this._rtObject.rotation.x = mouseRotationY + timeRotationY + transitionRotationX;
         this._rtObject.rotation.y = mouseRotationX + timeRotationX + transitionRotationY;
     }
 
     _updateMousePosition(time, deltaTime) {
-        this._mousePosition.current.x = math.lerp(this._mousePosition.current.x, this._mousePosition.target.x, 0.02 * deltaTime / 6);
-        this._mousePosition.current.y = math.lerp(this._mousePosition.current.y, this._mousePosition.target.y, 0.02 * deltaTime / 6);
+        this._mousePosition.current.x = math.lerp(
+            this._mousePosition.current.x,
+            this._mousePosition.target.x,
+            (0.02 * deltaTime) / 6,
+        );
+        this._mousePosition.current.y = math.lerp(
+            this._mousePosition.current.y,
+            this._mousePosition.target.y,
+            (0.02 * deltaTime) / 6,
+        );
     }
 
     _render() {
@@ -317,138 +346,237 @@ export default class WebGL {
         this._gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, 1);
 
         this._renderer.render({ scene: this._scene, camera: this._camera });
+
+        // Has to run right after rendering, the drawing buffer is cleared once the frame is displayed
+        this._drawWindowBackgrounds();
+    }
+
+    _drawWindowBackgrounds() {
+        if (!settings.windowBackgrounds) return;
+
+        const dpr = this._renderer.dpr;
+
+        for (const [canvas, { context, offset }] of windowBackgrounds.entries()) {
+            // Screen rect, including the window scale animation
+            const rect = canvas.getBoundingClientRect();
+
+            if (rect.width === 0 || rect.height === 0) continue;
+
+            // Unscaled size, so the copy stays sharp once the window is fully opened
+            const width = Math.round(canvas.offsetWidth * dpr);
+            const height = Math.round(canvas.offsetHeight * dpr);
+
+            if (canvas.width !== width) canvas.width = width;
+            if (canvas.height !== height) canvas.height = height;
+
+            // Near the screen edges the offset reaches outside the scene, that part is left to the window background color
+            context.clearRect(0, 0, width, height);
+            context.drawImage(
+                this._canvas,
+                (rect.left + offset.x) * dpr,
+                (rect.top + offset.y) * dpr,
+                rect.width * dpr,
+                rect.height * dpr,
+                0,
+                0,
+                width,
+                height,
+            );
+        }
     }
 
     _setupDebugger() {
         const asciiFolder = this._debugPanel.addFolder({ title: 'ASCII Rendering' });
 
-        asciiFolder.addBinding(settings, 'resolution', {
-            min: 32, max: 512, step: 1,
-        }).on('change', () => this._updateResolution());
+        asciiFolder
+            .addBinding(settings, 'resolution', {
+                min: 32,
+                max: 512,
+                step: 1,
+            })
+            .on('change', () => this._updateResolution());
 
-        asciiFolder.addBinding(settings, 'planeSize', {
-            min: 512, max: 4096, step: 1,
-        }).on('change', () => this._updatePlaneSize());
+        asciiFolder
+            .addBinding(settings, 'planeSize', {
+                min: 512,
+                max: 4096,
+                step: 1,
+            })
+            .on('change', () => this._updatePlaneSize());
 
-        asciiFolder.addBinding(settings, 'skipAscii')
-            .on('change', () => {
-                this._plane.program.uniforms.uSkipAscii.value = settings.skipAscii ? 1 : 0;
-            });
+        asciiFolder.addBinding(settings, 'skipAscii').on('change', () => {
+            this._plane.program.uniforms.uSkipAscii.value = settings.skipAscii ? 1 : 0;
+        });
 
-        asciiFolder.addBinding(settings, 'asciiOpacity', { min: 0, max: 1 })
-            .on('change', () => {
-                this._plane.program.uniforms.uAsciiOpacity.value = settings.asciiOpacity;
-            });
+        asciiFolder.addBinding(settings, 'asciiOpacity', { min: 0, max: 1 }).on('change', () => {
+            this._plane.program.uniforms.uAsciiOpacity.value = settings.asciiOpacity;
+        });
 
         const trailFolder = this._debugPanel.addFolder({ title: 'Mouse Trail' });
 
-        trailFolder.addBinding(settings.mouseTrail, 'showDebug')
+        trailFolder
+            .addBinding(settings.mouseTrail, 'showDebug')
             .on('change', () => this._mouseTrail.setVisible(settings.mouseTrail.showDebug));
 
-        trailFolder.addBinding(settings.mouseTrail, 'debugScale')
+        trailFolder
+            .addBinding(settings.mouseTrail, 'debugScale')
             .on('change', () => this._mouseTrail.setScale(settings.mouseTrail.debugScale));
 
         trailFolder.addBinding(settings.mouseTrail, 'brushSize', {
-            min: 0, max: 1, step: 0.01,
+            min: 0,
+            max: 1,
+            step: 0.01,
         });
 
         trailFolder.addBinding(settings.mouseTrail, 'fadeSpeed', {
-            min: 0.01, max: 0.5, step: 0.01,
+            min: 0.01,
+            max: 0.5,
+            step: 0.01,
         });
 
-        trailFolder.addBinding(settings.mouseTrail, 'strength', {
-            min: 0, max: 1, step: 0.01,
-        }).on('change', () => {
-            this._plane.program.uniforms.uMouseTrailStrength.value = settings.mouseTrail.strength;
-        });
+        trailFolder
+            .addBinding(settings.mouseTrail, 'strength', {
+                min: 0,
+                max: 1,
+                step: 0.01,
+            })
+            .on('change', () => {
+                this._plane.program.uniforms.uMouseTrailStrength.value = settings.mouseTrail.strength;
+            });
 
         const atlasFolder = this._debugPanel.addFolder({ title: 'Atlas' });
 
-        atlasFolder.addBinding(settings.atlas, 'showDebug')
+        atlasFolder
+            .addBinding(settings.atlas, 'showDebug')
             .on('change', () => this._atlas.setVisible(settings.atlas.showDebug));
 
-        atlasFolder.addBinding(settings.atlas, 'debugScale')
+        atlasFolder
+            .addBinding(settings.atlas, 'debugScale')
             .on('change', () => this._atlas.setScale(settings.atlas.debugScale));
 
         const presetOptions = Object.keys(CHARSET_PRESETS).map((key) => ({ text: key, value: key }));
 
-        atlasFolder.addBinding(settings, 'charsetPreset', {
-            label: 'preset',
-            options: presetOptions,
-        }).on('change', () => {
-            settings.atlas.charset = CHARSET_PRESETS[settings.charsetPreset];
-            charsetBinding.refresh();
-            this._updateAtlas();
-        });
+        atlasFolder
+            .addBinding(settings, 'charsetPreset', {
+                label: 'preset',
+                options: presetOptions,
+            })
+            .on('change', () => {
+                settings.atlas.charset = CHARSET_PRESETS[settings.charsetPreset];
+                charsetBinding.refresh();
+                this._updateAtlas();
+            });
 
-        const charsetBinding = atlasFolder.addBinding(settings.atlas, 'charset')
+        const charsetBinding = atlasFolder
+            .addBinding(settings.atlas, 'charset')
             .on('change', () => this._updateAtlas());
 
-        atlasFolder.addBinding(settings.atlas, 'fontSize', {
-            min: 10, max: 200, step: 1,
-        }).on('change', () => this._updateAtlas());
-
-        atlasFolder.addBinding(settings.atlas, 'charSize', {
-            min: 10, max: 200, step: 1,
-        }).on('change', () => this._updateAtlas());
-
-        atlasFolder.addBinding(settings.atlas, 'font')
+        atlasFolder
+            .addBinding(settings.atlas, 'fontSize', {
+                min: 10,
+                max: 200,
+                step: 1,
+            })
             .on('change', () => this._updateAtlas());
 
-        atlasFolder.addBinding(settings.atlas, 'textColor')
+        atlasFolder
+            .addBinding(settings.atlas, 'charSize', {
+                min: 10,
+                max: 200,
+                step: 1,
+            })
             .on('change', () => this._updateAtlas());
 
-        atlasFolder.addBinding(settings.atlas, 'offsetY', {
-            min: -50, max: 50, step: 1,
-        }).on('change', () => this._updateAtlas());
+        atlasFolder.addBinding(settings.atlas, 'font').on('change', () => this._updateAtlas());
+
+        atlasFolder.addBinding(settings.atlas, 'textColor').on('change', () => this._updateAtlas());
+
+        atlasFolder
+            .addBinding(settings.atlas, 'offsetY', {
+                min: -50,
+                max: 50,
+                step: 1,
+            })
+            .on('change', () => this._updateAtlas());
 
         const objectFolder = this._debugPanel.addFolder({ title: '3D Object' });
 
-        objectFolder.addBinding(settings.object, 'baseColor')
+        objectFolder.addBinding(settings.object, 'baseColor').on('change', () => this._updateObjectMaterial());
+
+        objectFolder.addBinding(settings.object, 'fresnelColor').on('change', () => this._updateObjectMaterial());
+
+        objectFolder
+            .addBinding(settings.object, 'fresnelPower', {
+                min: 0,
+                max: 5,
+                step: 0.01,
+            })
             .on('change', () => this._updateObjectMaterial());
 
-        objectFolder.addBinding(settings.object, 'fresnelColor')
+        objectFolder
+            .addBinding(settings.object, 'contrast', {
+                min: 0,
+                max: 3,
+                step: 0.01,
+            })
             .on('change', () => this._updateObjectMaterial());
 
-        objectFolder.addBinding(settings.object, 'fresnelPower', {
-            min: 0, max: 5, step: 0.01,
-        }).on('change', () => this._updateObjectMaterial());
+        objectFolder
+            .addBinding(settings.object, 'brightness', {
+                min: 0,
+                max: 3,
+                step: 0.01,
+            })
+            .on('change', () => this._updateObjectMaterial());
 
-        objectFolder.addBinding(settings.object, 'contrast', {
-            min: 0, max: 3, step: 0.01,
-        }).on('change', () => this._updateObjectMaterial());
-
-        objectFolder.addBinding(settings.object, 'brightness', {
-            min: 0, max: 3, step: 0.01,
-        }).on('change', () => this._updateObjectMaterial());
-
-        objectFolder.addBinding(settings.object, 'saturation', {
-            min: 0, max: 3, step: 0.01,
-        }).on('change', () => this._updateObjectMaterial());
+        objectFolder
+            .addBinding(settings.object, 'saturation', {
+                min: 0,
+                max: 3,
+                step: 0.01,
+            })
+            .on('change', () => this._updateObjectMaterial());
 
         // Applied every frame in _updateObject
         objectFolder.addBinding(settings.object, 'scale', {
-            min: 0.05, max: 2, step: 0.01,
+            min: 0.05,
+            max: 2,
+            step: 0.01,
         });
 
         const animFolder = this._debugPanel.addFolder({ title: 'Animation' });
 
         animFolder.addBinding(settings, 'rotationSpeed', {
-            min: 0, max: 3, step: 0.01,
+            min: 0,
+            max: 3,
+            step: 0.01,
         });
 
         animFolder.addBinding(settings, 'mouseAmplitude', {
-            min: -1, max: 1, step: 0.01,
+            min: -1,
+            max: 1,
+            step: 0.01,
         });
 
         animFolder.addBinding(settings, 'timeAmplitude', {
-            min: -1, max: 1, step: 0.01,
+            min: -1,
+            max: 1,
+            step: 0.01,
+        });
+
+        const windowsFolder = this._debugPanel.addFolder({ title: 'Windows' });
+
+        windowsFolder.addBinding(settings, 'windowBackgrounds', { label: 'backgrounds' }).on('change', () => {
+            if (!settings.windowBackgrounds) this._clearWindowBackgrounds();
         });
 
         const transitionFolder = this._debugPanel.addFolder({ title: 'Transition' });
 
         transitionFolder.addBinding(this._plane.program.uniforms.uTransition, 'value', {
-            label: 'Progress', min: 0, max: 1, step: 0.01,
+            label: 'Progress',
+            min: 0,
+            max: 1,
+            step: 0.01,
         });
 
         transitionFolder.addButton({ title: 'Show' }).on('click', () => {
@@ -460,6 +588,13 @@ export default class WebGL {
         });
 
         this._debugPanel.registerFile(settings, settings.file);
+    }
+
+    // Leaves the window background color visible
+    _clearWindowBackgrounds() {
+        for (const [canvas, { context }] of windowBackgrounds.entries()) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
 
     _updateResolution() {

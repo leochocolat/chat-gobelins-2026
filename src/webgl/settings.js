@@ -5,6 +5,8 @@ export default {
     skipAscii: false,
     asciiOpacity: 0.5,
     charsetPreset: 'Blocks',
+    // Copies the scene behind each window into its background, see windowBackgrounds.js
+    windowBackgrounds: true,
     atlas: {
         showDebug: false,
         debugScale: 0.3,

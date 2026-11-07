@@ -15,7 +15,21 @@
     transform-origin: top left;
 }
 
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    // filter: blur(3px) contrast(1.1);
+}
+
 .container {
+    // Above the absolutely positioned background
+    position: relative;
+
     width: 100%;
     height: 100%;
 }
@@ -24,6 +38,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    // Above the relatively positioned container
+    z-index: 1;
 
     position: absolute;
     left: 0;
