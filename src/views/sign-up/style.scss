@@ -13,8 +13,8 @@ form {
 .button-submit {
     margin-top: 30px;
 
-    background-color: black;
-    color: white;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
 
     cursor: pointer;
 

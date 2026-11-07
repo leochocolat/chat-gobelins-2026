@@ -3,9 +3,9 @@
 .window {
     position: absolute;
 
-    border: solid 2px black;
+    border: solid 2px var(--color-foreground);
 
-    background-color: white;
+    background-color: var(--color-background);
 
     padding: 20px;
 
@@ -27,8 +27,8 @@
     top: 0;
     width: 100%;
 
-    background-color: black;
-    color: white;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
 
     padding: 5px;
 

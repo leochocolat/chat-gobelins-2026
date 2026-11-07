@@ -2,9 +2,11 @@ import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import shaderHotReload from './vite/shaderHotReload.js';
+import debuggerServer from './vite/debuggerServer.js';
 
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [vue(), shaderHotReload(), debuggerServer()],
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -13,6 +15,7 @@ export default defineConfig({
             'stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
             'utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
             'components': fileURLToPath(new URL('./src/components', import.meta.url)),
+            'webgl': fileURLToPath(new URL('./src/webgl', import.meta.url)),
             'composables': fileURLToPath(new URL('./src/composables', import.meta.url)),
         },
     },

@@ -1,0 +1,15 @@
+@use '@/style/imports' as *;
+
+// Theme is set on <html data-theme="..."> by the theme store
+:root,
+[data-theme='light'] {
+    --color-background: #{$color-light-grey};
+    --color-foreground: #{$color-black};
+    --color-foreground-faded: #{rgba($color-black, 0.1)};
+}
+
+[data-theme='dark'] {
+    --color-background: #{$color-black};
+    --color-foreground: #{$color-light-grey};
+    --color-foreground-faded: #{rgba($color-light-grey, 0.1)};
+}

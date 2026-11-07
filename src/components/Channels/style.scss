@@ -13,8 +13,8 @@
 
     width: 100%;
 
-    background-color: black;
-    color: white;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
 }
 
 .list {
@@ -28,7 +28,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
 
     margin-top: 5px;
 }

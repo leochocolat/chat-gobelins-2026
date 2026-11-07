@@ -5,13 +5,13 @@
 
     padding: 5px;
 
-    // border: solid 1px black;
-    background-color: rgba(0, 0, 0, 0.1);
-    color: black;
+    // border: solid 1px var(--color-foreground);
+    background-color: var(--color-foreground-faded);
+    color: var(--color-foreground);
 
     &:hover,
     &.is-opened {
-        background-color: black;
-        color: white;
+        background-color: var(--color-foreground);
+        color: var(--color-background);
     }
 }

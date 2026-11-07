@@ -8,13 +8,13 @@
 
 .container {
     max-width: 80%;
-    border: solid 1px black;
+    border: solid 1px var(--color-foreground);
     padding: 5px;
 
     .message.is-own-message & {
         border: none;
-        color: white;
-        background-color: black;
+        color: var(--color-background);
+        background-color: var(--color-foreground);
     }
 }
 

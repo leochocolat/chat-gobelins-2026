@@ -25,11 +25,18 @@
             name="// New channel"
             :window-id="CREATE_WINDOW_ID"
             @close="createCloseHandler"
+            :height="200"
         >
             <CreateChannel @created="createdHandler" @cancel="cancelHandler" />
         </Window>
 
-        <Window v-if="isJoiningChannel" name="// Join channel" :window-id="JOIN_WINDOW_ID" @close="joinCloseHandler">
+        <Window
+            v-if="isJoiningChannel"
+            name="// Join channel"
+            :window-id="JOIN_WINDOW_ID"
+            @close="joinCloseHandler"
+            :height="200"
+        >
             <JoinChannel :channels="channels" @joined="joinedHandler" @cancel="joinCancelHandler" />
         </Window>
     </div>
