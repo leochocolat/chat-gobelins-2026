@@ -13,6 +13,7 @@ import MouseTrail from 'webgl/MouseTrail';
 import HotProgram from 'webgl/HotProgram';
 import settings from 'webgl/settings';
 import windowBackgrounds from 'webgl/windowBackgrounds';
+import sortCharsByDensity from 'webgl/sortCharsByDensity';
 
 // Shaders
 import objectVertex from 'webgl/shaders/object/vertex.glsl?raw';
@@ -56,6 +57,7 @@ export default class WebGL {
         this._canvas = canvas;
         this._debugPanel = debugPanel;
         this._isDark = theme === 'dark';
+        this._charset = null;
 
         this._bindAll();
         this._setup();
@@ -76,6 +78,13 @@ export default class WebGL {
 
     resume() {
         this._isPaused = false;
+    }
+
+    // Replaces the atlas characters, null goes back to the settings charset
+    setCharset(charset) {
+        // Ends with a space so the lightest areas stay empty
+        this._charset = charset ? `${sortCharsByDensity(charset, settings.atlas.font).join('')} ` : null;
+        this._updateAtlas();
     }
 
     setTheme(theme) {
@@ -224,12 +233,16 @@ export default class WebGL {
 
     // The plane shader inverts colors in dark mode, so the text color is pre-inverted to keep it as set
     _getAtlasOptions() {
-        if (!this._isDark) return settings.atlas;
+        const options = { ...settings.atlas };
 
-        const color = new Color(settings.atlas.textColor);
-        const textColor = `rgb(${(1 - color.r) * 255}, ${(1 - color.g) * 255}, ${(1 - color.b) * 255})`;
+        if (this._charset) options.charset = this._charset;
 
-        return { ...settings.atlas, textColor };
+        if (this._isDark) {
+            const color = new Color(settings.atlas.textColor);
+            options.textColor = `rgb(${(1 - color.r) * 255}, ${(1 - color.g) * 255}, ${(1 - color.b) * 255})`;
+        }
+
+        return options;
     }
 
     // Matches the page background, defined by the theme in style/core/_themes.scss
