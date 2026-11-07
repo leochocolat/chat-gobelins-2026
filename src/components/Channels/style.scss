@@ -24,7 +24,16 @@
     gap: 5px;
 }
 
-.button-new-channel {
-    padding: 5px;
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+
     margin-top: 5px;
+}
+
+.button-new-channel,
+.button-join-channel {
+    padding: 5px;
 }

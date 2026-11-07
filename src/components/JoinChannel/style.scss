@@ -1,0 +1,34 @@
+.join-channel {
+    padding-top: 50px;
+
+    width: 100%;
+    height: 100%;
+}
+
+.error {
+    margin-top: 10px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+
+    margin-top: 30px;
+}
+
+.button-cancel {
+    border: solid 1px black;
+
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.button-submit {
+    background-color: black;
+    color: white;
+
+    cursor: pointer;
+
+    padding-left: 5px;
+    padding-right: 5px;
+}

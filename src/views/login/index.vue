@@ -29,6 +29,8 @@
                 </div>
 
                 <input :disabled="loading" class="button-submit" type="submit" value="Submit" />
+
+                <router-link class="link" to="/sign-up">Create an account</router-link>
             </form>
         </Window>
     </div>

@@ -10,14 +10,16 @@ import { useUserStore } from './stores/user';
 // Utils
 import authentification from './authentification';
 
+const PUBLIC_PATHS = ['/login', '/sign-up'];
+
 const navigationGuard = (to) => {
     authentification.checkExistingSession();
 
     const userStore = useUserStore();
+    const isPublicPath = PUBLIC_PATHS.includes(to.path);
 
-    if (!userStore.isLoggedIn && to.path !== '/login') return '/login';
-    if (userStore.isLoggedIn && to.path === '/login') return '/';
-    if (userStore.isLoggedIn && to.path === '/sign-up') return '/';
+    if (!userStore.isLoggedIn && !isPublicPath) return '/login';
+    if (userStore.isLoggedIn && isPublicPath) return '/';
 };
 
 export default [

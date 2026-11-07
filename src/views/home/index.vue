@@ -5,6 +5,7 @@
                 :channels="channels"
                 :opened-channels="openedChannels"
                 @create="createHandler"
+                @join="joinHandler"
                 @open="openHandler"
             />
         </Window>
@@ -27,6 +28,10 @@
         >
             <CreateChannel @created="createdHandler" @cancel="cancelHandler" />
         </Window>
+
+        <Window v-if="isJoiningChannel" name="// Join channel" :window-id="JOIN_WINDOW_ID" @close="joinCloseHandler">
+            <JoinChannel :channels="channels" @joined="joinedHandler" @cancel="joinCancelHandler" />
+        </Window>
     </div>
 </template>
 
@@ -40,6 +45,7 @@ import Window from '@/components/Window/index.vue';
 import Channels from '@/components/Channels/index.vue';
 import Channel from '@/components/Channel/index.vue';
 import CreateChannel from '@/components/CreateChannel/index.vue';
+import JoinChannel from '@/components/JoinChannel/index.vue';
 
 // Stores
 import { useWindowsStore } from 'stores/windows';
@@ -48,6 +54,7 @@ import { useWindowsStore } from 'stores/windows';
 import axiosClient from '@/axios.js';
 
 const CREATE_WINDOW_ID = 'create-channel';
+const JOIN_WINDOW_ID = 'join-channel';
 
 /**
  * Stores
@@ -60,6 +67,7 @@ const windowsStore = useWindowsStore();
 const channels = ref([]);
 const openedChannels = ref([]);
 const isCreatingChannel = ref(false);
+const isJoiningChannel = ref(false);
 
 /**
  * Lifecycle
@@ -113,6 +121,28 @@ const createdHandler = (channel) => {
     channels.value.push(channel);
     openChannel(channel);
     isCreatingChannel.value = false;
+};
+
+const joinCloseHandler = () => {
+    isJoiningChannel.value = false;
+};
+
+const joinCancelHandler = () => {
+    isJoiningChannel.value = false;
+};
+
+const joinHandler = () => {
+    if (isJoiningChannel.value) windowsStore.bringToFront(JOIN_WINDOW_ID);
+    else isJoiningChannel.value = true;
+};
+
+const joinedHandler = (channel) => {
+    const isMember = channels.value.some((item) => item.id === channel.id);
+
+    if (!isMember) channels.value.push(channel);
+
+    openChannel(channel);
+    isJoiningChannel.value = false;
 };
 </script>
 

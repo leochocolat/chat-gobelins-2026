@@ -9,7 +9,10 @@
                 />
             </li>
         </ul>
-        <button class="button-new-channel" @click="clickHandler">+ Create new channel</button>
+        <div class="buttons">
+            <button class="button-new-channel" @click="clickHandler">+ Create new channel</button>
+            <button class="button-join-channel" @click="joinClickHandler">+ Join a channel</button>
+        </div>
     </div>
 </template>
 
@@ -24,7 +27,7 @@ import ButtonChannel from '@/components/ButtonChannel/index.vue';
 /**
  * Emits
  */
-const emit = defineEmits(['create', 'open']);
+const emit = defineEmits(['create', 'join', 'open']);
 
 /**
  * Props
@@ -46,6 +49,10 @@ const props = defineProps({
  */
 const clickHandler = () => {
     emit('create');
+};
+
+const joinClickHandler = () => {
+    emit('join');
 };
 
 const channelClickHandler = (channel) => {
