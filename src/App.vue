@@ -2,7 +2,11 @@
     <div class="root">
         <TheWebGLBackground />
         <Navigation v-if="isLoggedIn" />
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+            <Transition mode="out-in" :css="false" @leave="leaveHandler">
+                <component :is="Component" />
+            </Transition>
+        </RouterView>
     </div>
 </template>
 
@@ -14,6 +18,9 @@ import { storeToRefs } from 'pinia';
 // Components
 import Navigation from '@/components/Navigation/index.vue';
 import TheWebGLBackground from '@/components/TheWebGLBackground/index.vue';
+
+// Animations
+import { leave } from '@/components/Window/animations';
 
 // Stores
 import { useUserStore } from 'stores/user';
@@ -34,6 +41,17 @@ const { isLoggedIn, user } = storeToRefs(userStore);
  * Setup
  */
 themeStore.setTheme(themeStore.theme);
+
+/**
+ * Events
+ */
+// Windows of the leaving page hide before the route changes
+const leaveHandler = (el, done) => {
+    const windows = el.querySelectorAll('.window');
+
+    if (windows.length) leave(windows, done);
+    else done();
+};
 </script>
 
 <style scoped lang="scss">

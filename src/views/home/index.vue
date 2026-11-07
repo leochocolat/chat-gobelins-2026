@@ -27,7 +27,7 @@
             @close="createCloseHandler"
             :height="200"
         >
-            <CreateChannel @created="createdHandler" @cancel="cancelHandler" />
+            <CreateChannel @created="createdHandler" />
         </Window>
 
         <Window
@@ -37,7 +37,7 @@
             @close="joinCloseHandler"
             :height="200"
         >
-            <JoinChannel :channels="channels" @joined="joinedHandler" @cancel="joinCancelHandler" />
+            <JoinChannel :channels="channels" @joined="joinedHandler" />
         </Window>
     </div>
 </template>
@@ -115,10 +115,6 @@ const createCloseHandler = () => {
     isCreatingChannel.value = false;
 };
 
-const cancelHandler = () => {
-    isCreatingChannel.value = false;
-};
-
 const createHandler = () => {
     if (isCreatingChannel.value) windowsStore.bringToFront(CREATE_WINDOW_ID);
     else isCreatingChannel.value = true;
@@ -127,14 +123,9 @@ const createHandler = () => {
 const createdHandler = (channel) => {
     channels.value.push(channel);
     openChannel(channel);
-    isCreatingChannel.value = false;
 };
 
 const joinCloseHandler = () => {
-    isJoiningChannel.value = false;
-};
-
-const joinCancelHandler = () => {
     isJoiningChannel.value = false;
 };
 
@@ -149,7 +140,6 @@ const joinedHandler = (channel) => {
     if (!isMember) channels.value.push(channel);
 
     openChannel(channel);
-    isJoiningChannel.value = false;
 };
 </script>
 

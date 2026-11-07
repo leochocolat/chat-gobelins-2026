@@ -10,6 +10,9 @@
     padding: 20px;
 
     overflow: hidden;
+
+    // Show and hide animations scale from this corner
+    transform-origin: top left;
 }
 
 .container {

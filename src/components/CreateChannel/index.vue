@@ -34,7 +34,12 @@ import axiosClient from '@/axios.js';
 /**
  * Emits
  */
-const emit = defineEmits(['created', 'cancel']);
+const emit = defineEmits(['created']);
+
+/**
+ * Inject
+ */
+const closeWindow = inject('closeWindow');
 
 /**
  * Refs
@@ -47,7 +52,7 @@ const hasError = ref(false);
  * Events
  */
 const clickHandler = () => {
-    emit('cancel');
+    closeWindow();
 };
 
 const submitHandler = async (e) => {
@@ -61,6 +66,7 @@ const submitHandler = async (e) => {
     try {
         const { data } = await axiosClient.post('/channel', { name: name.value.trim() });
         emit('created', data);
+        closeWindow();
     } catch {
         hasError.value = true;
     }

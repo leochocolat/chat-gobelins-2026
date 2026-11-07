@@ -1,30 +1,44 @@
 <template>
-    <div ref="windowRef" class="window" :style="style" @pointerdown.capture="pointerdownHandler">
-        <div ref="navRef" class="nav" :class="{ 'is-dragging': isDragging }">
-            <div class="name">
-                {{ name }}
+    <Transition appear :css="false" @enter="enterHandler" @leave="leaveHandler" @after-leave="afterLeaveHandler">
+        <div v-if="isVisible" ref="windowRef" class="window" :style="style" @pointerdown.capture="pointerdownHandler">
+            <div ref="navRef" class="nav" :class="{ 'is-dragging': isDragging }">
+                <div class="name">
+                    {{ name }}
+                </div>
+                <button
+                    v-if="closable"
+                    class="button-close"
+                    type="button"
+                    aria-label="Close window"
+                    @mousedown.stop
+                    @touchstart.stop
+                    @click="clickHandler"
+                >
+                    ×
+                </button>
             </div>
-            <button
-                v-if="closable"
-                class="button-close"
-                type="button"
-                aria-label="Close window"
-                @mousedown.stop
-                @touchstart.stop
-                @click="clickHandler"
-            >
-                ×
-            </button>
+            <div class="container">
+                <slot></slot>
+            </div>
         </div>
-        <div class="container">
-            <slot></slot>
-        </div>
-    </div>
+    </Transition>
 </template>
 
 <script setup>
 // Vue
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, onUpdated, ref, useId, watch } from 'vue';
+import {
+    computed,
+    inject,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    onUnmounted,
+    onUpdated,
+    provide,
+    ref,
+    useId,
+    watch,
+} from 'vue';
 import { storeToRefs } from 'pinia';
 
 // Stores
@@ -37,10 +51,14 @@ import { gsap } from 'gsap';
 import randomFromRange from 'utils/randomFromRange';
 import DragManager from 'utils/DragManager';
 
+// Animations
+import { enter, leave } from './animations';
+
 const VIEWPORT_MARGIN = 100;
 const VIEWPORT_PADDING = 5;
 const REPOSITION_DURATION = 0.6;
 const RESIZE_DEBOUNCE_DELAY = 150;
+const FOCUSABLE_FIELDS = 'input:not([type="submit"]):not([type="button"]):not([disabled]), textarea:not([disabled])';
 
 /**
  * Stores
@@ -86,6 +104,7 @@ const props = defineProps({
  * Refs
  */
 const isDragging = ref(false);
+const isVisible = ref(true);
 
 /**
  * Computed
@@ -115,6 +134,7 @@ const position = {
 
 let dragManager = null;
 let repositionTween = null;
+let transitionTimeline = null;
 let resizeTimeout = null;
 
 /**
@@ -134,11 +154,17 @@ onUnmounted(() => {
     windowsStore.unregister(id);
     removeEventListeners();
     repositionTween?.kill();
+    transitionTimeline?.kill();
 });
 
 /**
  * Private
  */
+// Hides the window, the close event is emitted once the leave animation is done
+const close = () => {
+    isVisible.value = false;
+};
+
 const initPosition = () => {
     const rangeX = getInitialRange(props.width, window.innerWidth);
     const rangeY = getInitialRange(props.height, window.innerHeight, getNavigationHeight());
@@ -165,6 +191,10 @@ const applyPosition = () => {
     gsap.set(windowRef.value, { x: position.x, y: position.y });
 };
 
+const focusFirstField = () => {
+    windowRef.value?.querySelector(FOCUSABLE_FIELDS)?.focus();
+};
+
 const bringBackIntoView = () => {
     const minX = VIEWPORT_PADDING;
     const minY = getNavigationHeight() + VIEWPORT_PADDING;
@@ -185,6 +215,12 @@ const bringBackIntoView = () => {
         onUpdate: applyPosition,
     });
 };
+
+/**
+ * Provide
+ */
+// Lets the window content close it with the leave animation
+provide('closeWindow', close);
 
 /**
  * Events
@@ -215,6 +251,23 @@ const pointerdownHandler = () => {
 };
 
 const clickHandler = () => {
+    close();
+};
+
+const enterHandler = (el, done) => {
+    // Fields can only be focused once the content is visible
+    transitionTimeline = enter(el, () => {
+        done();
+        focusFirstField();
+    });
+};
+
+const leaveHandler = (el, done) => {
+    transitionTimeline?.kill();
+    transitionTimeline = leave(el, done);
+};
+
+const afterLeaveHandler = () => {
     emit('close');
 };
 
