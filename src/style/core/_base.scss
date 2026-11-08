@@ -11,6 +11,8 @@ body {
 
     background-color: var(--color-background);
     color: var(--color-foreground);
+
+    overscroll-behavior: none;
 }
 
 #app {

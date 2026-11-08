@@ -16,6 +16,7 @@ export default defineConfig({
             'utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
             'components': fileURLToPath(new URL('./src/components', import.meta.url)),
             'webgl': fileURLToPath(new URL('./src/webgl', import.meta.url)),
+            'windows': fileURLToPath(new URL('./src/windows', import.meta.url)),
             'composables': fileURLToPath(new URL('./src/composables', import.meta.url)),
         },
     },

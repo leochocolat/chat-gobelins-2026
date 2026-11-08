@@ -54,19 +54,14 @@ import Channel from '@/components/Channel/index.vue';
 import CreateChannel from '@/components/CreateChannel/index.vue';
 import JoinChannel from '@/components/JoinChannel/index.vue';
 
-// Stores
-import { useWindowsStore } from 'stores/windows';
+// Windows
+import WindowManager from 'windows';
 
 // Utils
 import axiosClient from '@/axios.js';
 
 const CREATE_WINDOW_ID = 'create-channel';
 const JOIN_WINDOW_ID = 'join-channel';
-
-/**
- * Stores
- */
-const windowsStore = useWindowsStore();
 
 /**
  * Refs
@@ -96,7 +91,7 @@ const fetchChannels = async () => {
 const openChannel = (channel) => {
     const isOpened = openedChannels.value.some((item) => item.id === channel.id);
 
-    if (isOpened) windowsStore.bringToFront(`channel-${channel.id}`);
+    if (isOpened) WindowManager.bringToFront(`channel-${channel.id}`);
     else openedChannels.value.push(channel);
 };
 
@@ -116,7 +111,7 @@ const createCloseHandler = () => {
 };
 
 const createHandler = () => {
-    if (isCreatingChannel.value) windowsStore.bringToFront(CREATE_WINDOW_ID);
+    if (isCreatingChannel.value) WindowManager.bringToFront(CREATE_WINDOW_ID);
     else isCreatingChannel.value = true;
 };
 
@@ -130,7 +125,7 @@ const joinCloseHandler = () => {
 };
 
 const joinHandler = () => {
-    if (isJoiningChannel.value) windowsStore.bringToFront(JOIN_WINDOW_ID);
+    if (isJoiningChannel.value) WindowManager.bringToFront(JOIN_WINDOW_ID);
     else isJoiningChannel.value = true;
 };
 

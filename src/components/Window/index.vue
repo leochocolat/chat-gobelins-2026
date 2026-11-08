@@ -40,17 +40,9 @@ import {
     useId,
     watch,
 } from 'vue';
-import { storeToRefs } from 'pinia';
 
-// Stores
-import { useWindowsStore } from 'stores/windows';
-
-// Vendor
-import { gsap } from 'gsap';
-
-// Utils
-import randomFromRange from 'utils/randomFromRange';
-import DragManager from 'utils/DragManager';
+// Windows
+import WindowManager from 'windows';
 
 // Animations
 import { enter, leave } from './animations';
@@ -58,16 +50,7 @@ import { enter, leave } from './animations';
 // WebGL
 import windowBackgrounds from 'webgl/windowBackgrounds';
 
-const VIEWPORT_MARGIN = 100;
-const VIEWPORT_PADDING = 5;
-const REPOSITION_DURATION = 0.6;
-const RESIZE_DEBOUNCE_DELAY = 150;
 const FOCUSABLE_FIELDS = 'input:not([type="submit"]):not([type="button"]):not([disabled]), textarea:not([disabled])';
-
-/**
- * Stores
- */
-const windowsStore = useWindowsStore();
 
 /**
  * Emits
@@ -114,7 +97,6 @@ const isVisible = ref(true);
  * Computed
  */
 const style = computed(() => ({
-    zIndex: windowsStore.zIndex(id),
     width: `${props.width}px`,
     height: `${props.height}px`,
 }));
@@ -132,26 +114,21 @@ const backgroundRef = ref(null);
 const generatedId = useId();
 const id = props.windowId ?? generatedId;
 
-const position = {
-    x: 0,
-    y: 0,
-};
-
-let dragManager = null;
-let repositionTween = null;
+let managedWindow = null;
 let transitionTimeline = null;
-let resizeTimeout = null;
 
 /**
  * Lifecycle
  */
 onMounted(() => {
-    windowsStore.register(id);
-
-    dragManager = new DragManager({
-        el: navRef.value,
+    // Position, drag, z-order and modes belong to the window manager
+    managedWindow = WindowManager.add({
+        id,
+        el: windowRef.value,
+        handle: navRef.value,
+        width: props.width,
+        height: props.height,
     });
-    initPosition();
     setupEventListeners();
     windowBackgrounds.add(backgroundRef.value);
 });
@@ -162,9 +139,8 @@ onBeforeUnmount(() => {
 });
 
 onUnmounted(() => {
-    windowsStore.unregister(id);
     removeEventListeners();
-    repositionTween?.kill();
+    WindowManager.remove(id);
     transitionTimeline?.kill();
 });
 
@@ -176,55 +152,8 @@ const close = () => {
     isVisible.value = false;
 };
 
-const initPosition = () => {
-    const rangeX = getInitialRange(props.width, window.innerWidth);
-    const rangeY = getInitialRange(props.height, window.innerHeight, getNavigationHeight());
-
-    position.x = randomFromRange(rangeX.min, rangeX.max);
-    position.y = randomFromRange(rangeY.min, rangeY.max);
-
-    applyPosition();
-};
-
-const getInitialRange = (size, viewportSize, minPosition = 0) => {
-    // Shrinks the margin when the window doesn't fit with the full one
-    const margin = Math.min(VIEWPORT_MARGIN, Math.max((viewportSize - size) / 2, 0));
-    const min = Math.max(margin, minPosition);
-
-    return { min, max: Math.max(min, viewportSize - size - margin) };
-};
-
-const getNavigationHeight = () => {
-    return document.querySelector('.navigation')?.offsetHeight ?? 0;
-};
-
-const applyPosition = () => {
-    gsap.set(windowRef.value, { x: position.x, y: position.y });
-};
-
 const focusFirstField = () => {
     windowRef.value?.querySelector(FOCUSABLE_FIELDS)?.focus();
-};
-
-const bringBackIntoView = () => {
-    const minX = VIEWPORT_PADDING;
-    const minY = getNavigationHeight() + VIEWPORT_PADDING;
-    const maxX = Math.max(window.innerWidth - props.width - VIEWPORT_PADDING, minX);
-    const maxY = Math.max(window.innerHeight - props.height - VIEWPORT_PADDING, minY);
-    const x = gsap.utils.clamp(minX, maxX, position.x);
-    const y = gsap.utils.clamp(minY, maxY, position.y);
-
-    repositionTween?.kill();
-
-    if (x === position.x && y === position.y) return;
-
-    repositionTween = gsap.to(position, {
-        x,
-        y,
-        duration: REPOSITION_DURATION,
-        ease: 'power3.out',
-        onUpdate: applyPosition,
-    });
 };
 
 /**
@@ -237,28 +166,17 @@ provide('closeWindow', close);
  * Events
  */
 const setupEventListeners = () => {
-    dragManager.addEventListener('dragstart', dragstartHandler);
-    dragManager.addEventListener('drag', dragHandler);
-    dragManager.addEventListener('touchup', dragendHandler);
-    window.addEventListener('resize', resizeHandler);
+    managedWindow.addEventListener('dragstart', dragstartHandler);
+    managedWindow.addEventListener('dragend', dragendHandler);
 };
 
 const removeEventListeners = () => {
-    dragManager.destroy();
-    window.removeEventListener('resize', resizeHandler);
-    clearTimeout(resizeTimeout);
-};
-
-const resizeHandler = () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        // The drag end brings it back into view, with the final position
-        if (!isDragging.value) bringBackIntoView();
-    }, RESIZE_DEBOUNCE_DELAY);
+    managedWindow.removeEventListener('dragstart', dragstartHandler);
+    managedWindow.removeEventListener('dragend', dragendHandler);
 };
 
 const pointerdownHandler = () => {
-    windowsStore.bringToFront(id);
+    WindowManager.focus(id);
 };
 
 const clickHandler = () => {
@@ -283,23 +201,11 @@ const afterLeaveHandler = () => {
 };
 
 const dragstartHandler = () => {
-    repositionTween?.kill();
     isDragging.value = true;
 };
 
-const dragHandler = (e) => {
-    position.x -= e.delta.x;
-    position.y -= e.delta.y;
-
-    applyPosition();
-};
-
 const dragendHandler = () => {
-    // DragManager dispatches this on every mouseup, even outside of this window
-    if (!isDragging.value) return;
-
     isDragging.value = false;
-    bringBackIntoView();
 };
 </script>
 
