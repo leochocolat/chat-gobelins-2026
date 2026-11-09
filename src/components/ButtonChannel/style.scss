@@ -1,4 +1,8 @@
 .button-channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     width: 100%;
 
     text-align: left;
@@ -13,5 +17,22 @@
     &.is-opened {
         background-color: var(--color-foreground);
         color: var(--color-background);
+    }
+}
+
+.unread {
+    min-width: 18px;
+
+    padding: 0 4px;
+
+    text-align: center;
+
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+
+    .button-channel:hover &,
+    .button-channel.is-opened & {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
     }
 }

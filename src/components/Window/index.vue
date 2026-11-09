@@ -3,8 +3,11 @@
         <div v-if="isVisible" ref="windowRef" class="window" :style="style" @pointerdown.capture="pointerdownHandler">
             <canvas ref="backgroundRef" class="background" aria-hidden="true"></canvas>
             <div ref="navRef" class="nav" :class="{ 'is-dragging': isDragging }">
-                <div class="name">
-                    {{ name }}
+                <div class="title">
+                    <div class="name">
+                        {{ name }}
+                    </div>
+                    <div v-if="unread" class="unread">{{ unread }}</div>
                 </div>
                 <button
                     v-if="closable"
@@ -86,6 +89,12 @@ const props = defineProps({
         type: Boolean,
         required: false,
         default: true,
+    },
+    // Number of unread messages shown next to the name
+    unread: {
+        type: Number,
+        required: false,
+        default: 0,
     },
     windowId: {
         type: String,

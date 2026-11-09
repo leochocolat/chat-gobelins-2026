@@ -2,7 +2,6 @@
     <div class="page home">
         <Window name="// All channels" :closable="false" :width="350" :height="500">
             <Channels
-                :channels="channels"
                 :opened-channels="openedChannels"
                 @create="createHandler"
                 @join="joinHandler"
@@ -14,7 +13,8 @@
             v-for="channel in openedChannels"
             :key="channel.id"
             :name="`#${channel.name}`"
-            :window-id="`channel-${channel.id}`"
+            :window-id="getChannelWindowId(channel.id)"
+            :unread="channelsStore.unreadCount(channel.id)"
             @close="closeHandler(channel)"
         >
             <Channel :name="channel.name" :id="channel.id" />
@@ -56,9 +56,10 @@ import JoinChannel from '@/components/JoinChannel/index.vue';
 
 // Stores
 import { useWindowsStore } from 'stores/windows';
+import { useChannelsStore } from 'stores/channels';
 
 // Utils
-import axiosClient from '@/axios.js';
+import getChannelWindowId from 'utils/getChannelWindowId';
 
 const CREATE_WINDOW_ID = 'create-channel';
 const JOIN_WINDOW_ID = 'join-channel';
@@ -67,36 +68,23 @@ const JOIN_WINDOW_ID = 'join-channel';
  * Stores
  */
 const windowsStore = useWindowsStore();
+const channelsStore = useChannelsStore();
 
 /**
  * Refs
  */
-const channels = ref([]);
+const { channels } = storeToRefs(channelsStore);
 const openedChannels = ref([]);
 const isCreatingChannel = ref(false);
 const isJoiningChannel = ref(false);
 
 /**
- * Lifecycle
- */
-onMounted(() => {
-    fetchChannels();
-});
-
-/**
  * Private
  */
-const fetchChannels = async () => {
-    const { data } = await axiosClient.get('/me');
-    channels.value = data.channels ?? [];
-
-    if (channels.value[0]) openChannel(channels.value[0]);
-};
-
 const openChannel = (channel) => {
     const isOpened = openedChannels.value.some((item) => item.id === channel.id);
 
-    if (isOpened) windowsStore.bringToFront(`channel-${channel.id}`);
+    if (isOpened) windowsStore.bringToFront(getChannelWindowId(channel.id));
     else openedChannels.value.push(channel);
 };
 
@@ -121,7 +109,7 @@ const createHandler = () => {
 };
 
 const createdHandler = (channel) => {
-    channels.value.push(channel);
+    channelsStore.addChannel(channel);
     openChannel(channel);
 };
 
@@ -135,10 +123,7 @@ const joinHandler = () => {
 };
 
 const joinedHandler = (channel) => {
-    const isMember = channels.value.some((item) => item.id === channel.id);
-
-    if (!isMember) channels.value.push(channel);
-
+    channelsStore.addChannel(channel);
     openChannel(channel);
 };
 </script>

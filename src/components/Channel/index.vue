@@ -24,11 +24,21 @@ import { storeToRefs } from 'pinia';
 // Components
 import Message from '@/components/Message/index.vue';
 
+// Stores
+import { useChannelsStore } from 'stores/channels';
+import { useWindowsStore } from 'stores/windows';
+
 // Utils
 import axiosClient from '@/axios.js';
+import getChannelWindowId from 'utils/getChannelWindowId';
 
-const REFRESH_DELAY = 2000;
 const BOTTOM_THRESHOLD = 2;
+
+/**
+ * Stores
+ */
+const channelsStore = useChannelsStore();
+const windowsStore = useWindowsStore();
 
 /**
  * Props
@@ -47,10 +57,20 @@ const props = defineProps({
 /**
  * Refs
  */
-const messages = ref([]);
 const currentMessage = ref('');
-const isRefreshing = ref(false);
 const isSubmitting = ref(false);
+const isPageVisible = ref(!document.hidden);
+
+/**
+ * Computed
+ */
+// Fetched by the Channels component
+const messages = computed(() => channelsStore.messages(props.id));
+
+const lastMessageDate = computed(() => messages.value.at(-1)?.creation_date);
+
+// Messages are only read in the frontmost window, while the page is visible
+const isActive = computed(() => isPageVisible.value && windowsStore.activeId === getChannelWindowId(props.id));
 
 /**
  * Refs DOM
@@ -60,39 +80,30 @@ const scrollContainer = ref(null);
 /**
  * Setup
  */
-let refreshInterval;
 let isAutoScrollEnabled = true;
+let hasScrolled = false;
 let previousScrollTop = 0;
+
+/**
+ * Watch
+ */
+watch(lastMessageDate, lastMessageDateChangeHandler, { immediate: true });
+watch([lastMessageDate, isActive], readStateChangeHandler, { immediate: true });
 
 /**
  * Lifecycle
  */
 onMounted(() => {
-    fetchMessages(true);
-    refreshInterval = setInterval(() => {
-        fetchMessages();
-    }, REFRESH_DELAY);
+    document.addEventListener('visibilitychange', visibilitychangeHandler);
 });
 
 onUnmounted(() => {
-    clearInterval(refreshInterval);
+    document.removeEventListener('visibilitychange', visibilitychangeHandler);
 });
 
 /**
  * Private
  */
-const fetchMessages = async (isFirstFetch) => {
-    isRefreshing.value = true;
-    const { data } = await axiosClient.get('/channel/message', {
-        params: { channel: props.id },
-    });
-    messages.value = data;
-    isRefreshing.value = false;
-
-    await nextTick();
-    updateScroll(isFirstFetch ? 'instant' : 'smooth');
-};
-
 const updateScroll = (behavior) => {
     if (!scrollContainer.value || !isAutoScrollEnabled) return;
 
@@ -108,7 +119,7 @@ const submitMessage = async () => {
     if (data) {
         currentMessage.value = '';
         isAutoScrollEnabled = true;
-        fetchMessages();
+        channelsStore.addMessage(props.id, data);
     }
     isSubmitting.value = false;
 };
@@ -116,6 +127,23 @@ const submitMessage = async () => {
 /**
  * Events
  */
+// The first messages show without scrolling animation
+async function lastMessageDateChangeHandler(date) {
+    if (!date) return;
+
+    await nextTick();
+    updateScroll(hasScrolled ? 'smooth' : 'instant');
+    hasScrolled = true;
+}
+
+function readStateChangeHandler() {
+    if (isActive.value) channelsStore.markAsRead(props.id);
+}
+
+const visibilitychangeHandler = () => {
+    isPageVisible.value = !document.hidden;
+};
+
 const scrollHandler = () => {
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value;
 

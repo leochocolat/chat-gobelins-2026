@@ -74,8 +74,24 @@
     }
 }
 
-.name {
+.title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     pointer-events: none;
+}
+
+// Inverted, the nav uses the foreground color as background
+.unread {
+    min-width: 18px;
+
+    padding: 0 4px;
+
+    text-align: center;
+
+    background-color: var(--color-background);
+    color: var(--color-foreground);
 }
 
 .button-close {

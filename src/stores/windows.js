@@ -9,6 +9,11 @@ export const useWindowsStore = defineStore('windows', {
         zIndex(state) {
             return (id) => state._order.indexOf(id) + 1;
         },
+
+        // Frontmost window, the last one the user interacted with
+        activeId(state) {
+            return state._order.at(-1);
+        },
     },
 
     actions: {

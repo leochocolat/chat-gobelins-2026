@@ -1,6 +1,7 @@
 <template>
     <button class="button-channel" :class="{ 'is-opened': opened }">
         <div class="name">#{{ channel.name }}</div>
+        <div v-if="unread" class="unread">{{ unread }}</div>
     </button>
 </template>
 
@@ -21,6 +22,11 @@ const props = defineProps({
         type: Boolean,
         required: false,
         default: false,
+    },
+    unread: {
+        type: Number,
+        required: false,
+        default: 0,
     },
 });
 </script>
