@@ -3,8 +3,8 @@ import cookies from './cookies';
 import { API_NAMESPACE } from './config';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:4000/',
-    // baseURL: 'http://37.27.91.240:4000/',
+    // baseURL: 'http://localhost:4000/',
+    baseURL: 'http://37.27.91.240:4000/',
     // baseURL: 'http://82.229.112.208:32769/',
 });
 
