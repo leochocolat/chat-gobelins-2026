@@ -27,11 +27,13 @@ import ButtonChannel from '@/components/ButtonChannel/index.vue';
 
 // Stores
 import { useChannelsStore } from 'stores/channels';
+import { useTypingStore } from 'stores/typing';
 import { useUserStore } from 'stores/user';
 import { useWindowsStore } from 'stores/windows';
 
 // Utils
 import axiosClient from '@/axios.js';
+import socket from '@/socket.js';
 import getChannelWindowId from 'utils/getChannelWindowId';
 
 const REFRESH_DELAY = 2000;
@@ -40,6 +42,7 @@ const REFRESH_DELAY = 2000;
  * Stores
  */
 const channelsStore = useChannelsStore();
+const typingStore = useTypingStore();
 const userStore = useUserStore();
 const windowsStore = useWindowsStore();
 
@@ -65,10 +68,20 @@ const props = defineProps({
 const { channels } = storeToRefs(channelsStore);
 
 /**
+ * Computed
+ */
+const channelIds = computed(() => channels.value.map((channel) => channel.id));
+
+/**
  * Setup
  */
 let refreshInterval = null;
 let isFetchingMessages = false;
+
+/**
+ * Watch
+ */
+watch(channelIds, channelIdsChangeHandler);
 
 /**
  * Lifecycle
@@ -83,6 +96,7 @@ onMounted(async () => {
 onUnmounted(() => {
     removeEventListeners();
     clearInterval(refreshInterval);
+    socket.disconnect();
 });
 
 /**
@@ -143,15 +157,30 @@ const notify = (channel, messages) => {
 /**
  * Events
  */
-// Browsers only show the permission prompt after a user gesture
 const setupEventListeners = () => {
+    socket.addEventListener('user.typing', typingHandler);
+
+    // Browsers only show the permission prompt after a user gesture
     if ('Notification' in window && Notification.permission === 'default') {
         window.addEventListener('pointerdown', pointerdownHandler, { once: true });
     }
 };
 
 const removeEventListeners = () => {
+    socket.removeEventListener('user.typing', typingHandler);
     window.removeEventListener('pointerdown', pointerdownHandler);
+};
+
+// A socket watches a fixed list of channels, so it reopens on join or creation
+function channelIdsChangeHandler(ids) {
+    socket.connect(ids);
+}
+
+const typingHandler = ({ channel_id, typing, user }) => {
+    // The server also sends our own typing events back
+    if (user.username === userStore.user?.user.username) return;
+
+    typingStore.setTyping(channel_id, user.username, typing);
 };
 
 const pointerdownHandler = () => {

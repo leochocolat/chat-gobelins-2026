@@ -34,6 +34,24 @@
     gap: 5px;
 }
 
+.composer {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+}
+
+// Over the bottom spacing of the messages, so showing it doesn't move the layout
+.typing {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+
+    padding: 2px 5px;
+    font-size: 0.7rem;
+    background-color: var(--color-background);
+}
+
 textarea {
     padding: 5px;
     min-height: 100px;

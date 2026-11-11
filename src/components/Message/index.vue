@@ -8,7 +8,7 @@
             <div class="infos">
                 <div class="author">@{{ message.user }}</div>
                 &nbsp;-&nbsp;
-                <div class="time">{{ creationDateString }}</div>
+                <div class="time">{{ postedDateString }}</div>
             </div>
         </div>
     </div>
@@ -45,8 +45,9 @@ const { user } = storeToRefs(userStore);
 /**
  * Computed
  */
-const creationDateString = computed(() => {
-    const date = new Date(props.message.creation_date);
+// Later than the creation date for a scheduled message
+const postedDateString = computed(() => {
+    const date = new Date(props.message.posted_at);
     const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     return `${date.toLocaleDateString()} ${time}`;

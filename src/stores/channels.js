@@ -6,18 +6,23 @@ import { useUserStore } from 'stores/user';
 /**
  * Private
  */
-// Messages have no id, they are told apart by their creation date
-const getTime = (message) => Date.parse(message.creation_date);
+// Time the message shows in the channel, later than its creation for a scheduled message
+const getTime = (message) => Date.parse(message.posted_at);
 
 const getMessagesAfter = (messages, time) => {
     return messages.filter((message) => getTime(message) > time);
+};
+
+// The server sends the newest first, channels show the oldest first
+const sortMessages = (messages) => {
+    return [...messages].sort((a, b) => getTime(a) - getTime(b) || a.id - b.id);
 };
 
 export const useChannelsStore = defineStore('channels', {
     state: () => ({
         _channels: [], // Channels the user is in
         _messages: {}, // Messages by channel id, undefined until fetched
-        _readTimes: {}, // Creation time of the last read message by channel id
+        _readTimes: {}, // Posting time of the last read message by channel id
     }),
 
     getters: {
@@ -55,8 +60,9 @@ export const useChannelsStore = defineStore('channels', {
         // Returns the messages received since the previous fetch, none on the first one
         setMessages(id, messages) {
             const previousMessages = this._messages[id];
+            const sortedMessages = sortMessages(messages);
 
-            this._messages[id] = messages;
+            this._messages[id] = sortedMessages;
 
             // Messages sent before opening the app are not new
             if (!previousMessages) {
@@ -64,9 +70,9 @@ export const useChannelsStore = defineStore('channels', {
                 return [];
             }
 
-            const lastMessage = previousMessages.at(-1);
+            const previousIds = new Set(previousMessages.map((message) => message.id));
 
-            return getMessagesAfter(messages, lastMessage ? getTime(lastMessage) : 0);
+            return sortedMessages.filter((message) => !previousIds.has(message.id));
         },
 
         // A sent message shows before the next fetch
