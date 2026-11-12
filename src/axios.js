@@ -4,8 +4,8 @@ import { API_NAMESPACE } from './config';
 
 const axiosClient = axios.create({
     // baseURL: 'http://localhost:4000/',
-    baseURL: 'http://37.27.91.240:4000/',
-    // baseURL: 'http://82.229.112.208:32769/',
+    baseURL: 'https://gobelins-chat-api.leomouraire.com:4000',
+    // baseURL: 'http://37.27.91.240:4000/', // Production
 });
 
 axiosClient.interceptors.request.use((config) => {
